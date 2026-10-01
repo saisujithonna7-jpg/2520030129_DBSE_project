@@ -28,10 +28,15 @@ class AuthService extends ChangeNotifier {
     required String area,
     required String password,
     int? age,
+    UserRole role = UserRole.donor,
+    String? managedFacilityId,
   }) {
     final key = email.trim().toLowerCase();
     if (_accounts.containsKey(key)) {
       return 'An account with this email already exists.';
+    }
+    if (role != UserRole.donor && managedFacilityId == null) {
+      return 'Admin accounts must be linked to a facility.';
     }
     final user = AppUser(
       id: 'u${_accounts.length + 1}',
@@ -41,6 +46,8 @@ class AuthService extends ChangeNotifier {
       bloodGroup: bloodGroup,
       area: area,
       age: age,
+      role: role,
+      managedFacilityId: managedFacilityId,
     );
     _accounts[key] = (password: password, user: user);
     _currentUser = user;
@@ -54,11 +61,19 @@ class AuthService extends ChangeNotifier {
     final key = email.trim().toLowerCase();
     final account = _accounts[key];
     if (account == null) {
-      // Phase 1 convenience: a demo account so the app is usable
-      // without registering first.
-      if (key == 'demo@raktasetu.in' && password == 'demo123') {
-        _currentUser = _demoUser;
-        _persistSession(_demoUser);
+      // Mock convenience accounts so every role is demoable:
+      //   demo@raktasetu.in  / demo123      → donor
+      //   hospital@raktasetu.in / demo123   → hospital admin (h01)
+      //   bloodbank@raktasetu.in / demo123  → blood bank admin (bb01)
+      const demoAccounts = <String, AppUser>{
+        'demo@raktasetu.in': _demoUser,
+        'hospital@raktasetu.in': _demoHospitalAdmin,
+        'bloodbank@raktasetu.in': _demoBloodBankAdmin,
+      };
+      final demoUser = demoAccounts[key];
+      if (demoUser != null && password == 'demo123') {
+        _currentUser = demoUser;
+        _persistSession(demoUser);
         notifyListeners();
         return null;
       }
@@ -133,5 +148,27 @@ class AuthService extends ChangeNotifier {
     bloodGroup: 'O+',
     area: 'Kukatpally',
     age: 28,
+  );
+
+  static const AppUser _demoHospitalAdmin = AppUser(
+    id: 'ua1',
+    fullName: 'City Care Admin',
+    email: 'hospital@raktasetu.in',
+    phone: '+91 98765 43001',
+    bloodGroup: 'B+',
+    area: 'Kukatpally',
+    role: UserRole.hospitalAdmin,
+    managedFacilityId: 'h01',
+  );
+
+  static const AppUser _demoBloodBankAdmin = AppUser(
+    id: 'ua2',
+    fullName: 'City Care BB Admin',
+    email: 'bloodbank@raktasetu.in',
+    phone: '+91 98765 44001',
+    bloodGroup: 'A+',
+    area: 'Kukatpally',
+    role: UserRole.bloodBankAdmin,
+    managedFacilityId: 'bb01',
   );
 }

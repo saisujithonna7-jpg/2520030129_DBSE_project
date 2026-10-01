@@ -8,6 +8,7 @@ import '../models/camp.dart';
 import '../models/donation_record.dart';
 import '../models/donor.dart';
 import '../models/donor_certificate.dart';
+import '../models/donor_registry.dart';
 import '../services/auth_service.dart';
 
 /// Phase 2 donor service: slot booking, camp registration, history,
@@ -340,6 +341,60 @@ class DonorService extends ChangeNotifier {
         area: b.venueArea,
       );
     }
+  }
+
+  // ==========================================================
+  //  Facility admin views (Phase 3)
+  // ==========================================================
+
+  /// All active bookings at a facility (any donor) — admin view.
+  List<DonationBooking> bookingsForFacility(String facilityId) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final list = _bookings
+        .where((b) =>
+            b.venueId == facilityId &&
+            b.isActive &&
+            !b.date.isBefore(today))
+        .toList()
+      ..sort((a, b) => a.date.compareTo(b.date));
+    return list;
+  }
+
+  /// Completed donation records at a facility — admin "donation records".
+  List<DonationRecord> donationRecordsForFacility(String facilityId) {
+    final list = _history
+        .where((r) => r.facilityId == facilityId)
+        .toList()
+      ..sort((a, b) => b.date.compareTo(a.date));
+    return list;
+  }
+
+  /// Mock donor registry for a facility: donors derived from the demo
+  /// seed + registered accounts (Phase 3 admin view).
+  List<DonorRegistryEntry> donorsForFacility(String facilityId) {
+    final entries = <DonorRegistryEntry>[];
+    for (final r in _history.where((r) => r.facilityId == facilityId)) {
+      entries.add(DonorRegistryEntry(
+        name: r.userEmail == kDemoDonorEmail ? 'Demo Donor' : r.userEmail,
+        bloodGroup: r.bloodGroup,
+        lastDonation: r.date,
+        donations: 1,
+      ));
+    }
+    for (final b in _bookings
+        .where((b) => b.venueId == facilityId && b.isActive)) {
+      if (!entries.any((e) => e.name == b.userEmail)) {
+        entries.add(DonorRegistryEntry(
+          name: b.userEmail == kDemoDonorEmail ? 'Demo Donor' : b.userEmail,
+          bloodGroup: b.bloodGroup ?? '?',
+          lastDonation: null,
+          donations: 0,
+          hasUpcomingSlot: true,
+        ));
+      }
+    }
+    return entries;
   }
 
   // ==========================================================

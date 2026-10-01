@@ -1,6 +1,6 @@
 # 🩸 RaktaSetu — Smart Blood Bank & Donor Locator
 
-**Phase 1 + Phase 2** (Flutter + Dart, mock data) · Tagline: *"Find Blood Fast. Save Lives."*
+**Phase 1 + 2 + 3** (Flutter + Dart, mock data) · Tagline: *"Find Blood Fast. Save Lives."*
 
 ## Features (Phase 1 — find blood)
 
@@ -28,11 +28,34 @@
 | Donor notifications (slot confirmation, reminders, camp notices, updates) | `lib/services/donor_service.dart`, `lib/data/donor_seed_data.dart` |
 | Donor dashboard (next appointment, history, upcoming camps, certificates) | `lib/screens/donate/donate_screen.dart` |
 
-Bottom navigation: **Home | Find Blood | Donate | Camps | Profile**
-(Hospitals & Blood Banks remain reachable from Home → "See all".)
+## Features (Phase 3 — hospitals, doctors & admin)
+
+| Module | Where |
+|---|---|
+| Roles (donor / hospital admin / blood bank admin) + managed facility | `lib/models/user.dart`, demo logins below |
+| Doctors tab (search, specialization filters, profiles, fees, status) | `lib/screens/doctors/`, `lib/data/doctors_data.dart` |
+| Consultation booking (date picker, 30-min slots, consulting-day rules, cancel, history) | `lib/screens/doctors/doctor_profile_screen.dart`, `lib/screens/doctors/my_appointments_sheet.dart` |
+| Hospital-wise doctor listing | `lib/screens/hospitals/hospital_detail_screen.dart` |
+| Hospital Admin dashboard (info, doctors, inventory, appointments, camps, requests) | `lib/screens/admin/hospital_admin_screen.dart` |
+| Blood Bank Admin dashboard (inventory updates, slots, donors, records, requests) | `lib/screens/admin/blood_bank_admin_screen.dart` |
+| Blood requests (raise / fulfil with auto stock deduction / reject) | `lib/models/blood_request.dart`, `lib/services/admin_service.dart` |
+| Blood inventory updates (per-group units, live status recompute) | `lib/services/admin_service.dart` |
+
+Bottom navigation: **Home | Find Blood | Hospitals | Doctors | Blood Banks | Profile**
+(Donate dashboard, Camps and admin dashboards are reachable from Home.)
 
 Mock data: 12 hospitals, 12 blood banks, 12 requirements, 12 notifications,
-8 camps, demo donor history/bookings/certificates — in `lib/data/`.
+8 camps, 18 doctors, demo donor history/bookings/certificates — in `lib/data/`.
+
+**Demo logins** (password `demo123` for all):
+
+| Role | Email |
+|---|---|
+| 👤 Donor (pre-seeded history, certificates, booking) | `demo@raktasetu.in` |
+| 🏥 Hospital Admin (City Care Multispeciality, h01) | `hospital@raktasetu.in` |
+| 🩸 Blood Bank Admin (City Care Blood Centre, bb01) | `bloodbank@raktasetu.in` |
+
+New accounts can also pick a role + facility on the Register form.
 
 ## Project structure
 
@@ -42,16 +65,18 @@ lib/
 ├── app.dart             # MaterialApp + routes
 ├── core/app_theme.dart  # colors + Material 3 theme
 ├── models/              # plain Dart models (users, facilities,
-│                        #   bookings, camps, certificates, …)
-├── data/                # mock datasets (Phase 1 + Phase 2)
-├── services/            # AuthService, BloodService, DonorService
-│                        #   (singletons — swap internals for APIs later)
+│                        #   bookings, camps, doctors, appointments,
+│                        #   certificates, blood requests, …)
+├── data/                # mock datasets (Phases 1–3)
+├── services/            # AuthService, BloodService, DonorService,
+│                        #   DoctorService, AdminService (singletons —
+│                        #   swap internals for APIs later)
 ├── widgets/             # reusable UI components
 └── screens/             # splash, auth, main, home, find_blood,
-                         #   hospitals, blood_banks, requirements,
+                         #   hospitals, blood_banks, doctors, requirements,
                          #   notifications, safety, profile,
                          #   donate (dashboard/booking/history/certificates),
-                         #   camps
+                         #   camps, admin (hospital & blood bank dashboards)
 ```
 
 ## Run the app
@@ -76,10 +101,10 @@ flutter run
 Run on Windows desktop, an Android emulator, a connected phone, or Chrome
 (`flutter run -d chrome`).
 
-**Demo login:** `demo@raktasetu.in` / `demo123` — the demo donor comes pre-seeded
-with donation history, certificates, an upcoming booking and donor notifications.
-New accounts can register too (stored in memory; add your age on the Register
-form to get an eligibility status).
+The demo donor comes pre-seeded with donation history, certificates, an
+upcoming booking and donor notifications. New accounts can register too
+(stored in memory; add your age on the Register form to get an eligibility
+status, and pick Donor / Hospital / Blood bank as the account type).
 
 ## Phase 6 readiness (backend)
 

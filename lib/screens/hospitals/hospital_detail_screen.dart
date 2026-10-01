@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 
 import '../../core/app_theme.dart';
 import '../../models/hospital.dart';
+import '../../services/doctor_service.dart';
 import '../../widgets/info_tile.dart';
 import '../../widgets/status_badge.dart';
 import '../../widgets/stock_grid.dart';
+import '../doctors/doctor_profile_screen.dart';
+import '../doctors/doctors_screen.dart';
 
 /// Hospital detail: contact, facilities, verification and live mock stock.
 class HospitalDetailScreen extends StatelessWidget {
@@ -132,6 +135,13 @@ class HospitalDetailScreen extends StatelessWidget {
 
           const SizedBox(height: 16),
 
+          const SizedBox(height: 16),
+
+          // ---- Hospital-wise doctors (Phase 3) ----
+          _DoctorsSection(hospitalId: hospital.id),
+
+          const SizedBox(height: 16),
+
           // ---- Blood stock ----
           if (hospital.hasBloodBank) ...[
             const Text(
@@ -188,6 +198,68 @@ class HospitalDetailScreen extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+/// Hospital-wise doctor listing (Phase 3) with a See-all link.
+class _DoctorsSection extends StatelessWidget {
+  const _DoctorsSection({required this.hospitalId});
+
+  final String hospitalId;
+
+  @override
+  Widget build(BuildContext context) {
+    final doctors = DoctorService.instance.doctorsByHospital(hospitalId);
+    if (doctors.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                'Doctors & Consultation',
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: AppTheme.textDark,
+                ),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const DoctorsScreen(),
+                ),
+              ),
+              child: const Text('See all'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        for (final d in doctors.take(3))
+          DoctorCard(
+            doctor: d,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => DoctorProfileScreen(doctor: d),
+              ),
+            ),
+          ),
+        if (doctors.length > 3)
+          Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(
+              '+${doctors.length - 3} more doctors — tap See all',
+              style: const TextStyle(fontSize: 12, color: AppTheme.textGrey),
+            ),
+          ),
+      ],
     );
   }
 }

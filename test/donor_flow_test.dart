@@ -30,21 +30,23 @@ void main() {
       (tester) async {
     await loginAsDemo(tester);
 
-    // New bottom navigation exists with the 5 Phase 2 tabs.
+    // New bottom navigation exists with the 6 Phase 3 tabs.
     expect(find.text('Home'), findsOneWidget);
     expect(find.text('Find Blood'), findsOneWidget);
-    expect(find.text('Donate'), findsOneWidget);
-    expect(find.text('Camps'), findsOneWidget);
+    expect(find.text('Hospitals'), findsOneWidget);
+    expect(find.text('Doctors'), findsOneWidget);
+    expect(find.text('Blood Banks'), findsOneWidget);
     expect(find.text('Profile'), findsOneWidget);
 
     // Home still surfaces hospitals & blood banks sections.
     expect(find.text('🚨 Emergency Requirements'), findsOneWidget);
   });
 
-  testWidgets('Donate tab shows donor dashboard sections', (tester) async {
+  testWidgets('donor dashboard opens from Home and shows sections',
+      (tester) async {
     await loginAsDemo(tester);
 
-    await tester.tap(find.text('Donate'));
+    await tester.tap(find.text('Donate dashboard'));
     await tester.pumpAndSettle();
 
     expect(find.text('Donate Blood'), findsOneWidget);
@@ -80,7 +82,7 @@ void main() {
       (tester) async {
     await loginAsDemo(tester);
 
-    await tester.tap(find.text('Donate'));
+    await tester.tap(find.text('Donate dashboard'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Book a donation slot'));
     await tester.pumpAndSettle();
@@ -130,11 +132,11 @@ void main() {
     expect(find.textContaining('Slot confirmed'), findsOneWidget);
   });
 
-  testWidgets('camps tab lists camps and registers for one',
+  testWidgets('camps screen lists camps and registers for one',
       (tester) async {
     await loginAsDemo(tester);
 
-    await tester.tap(find.text('Camps'));
+    await tester.tap(find.text('All camps'));
     await tester.pumpAndSettle();
 
     expect(find.text('Donation camps'), findsOneWidget);
@@ -156,7 +158,7 @@ void main() {
   testWidgets('certificates open in a detail view', (tester) async {
     await loginAsDemo(tester);
 
-    await tester.tap(find.text('Donate'));
+    await tester.tap(find.text('Donate dashboard'));
     await tester.pumpAndSettle();
     final scrollable = find.byType(Scrollable).first;
     await tester.scrollUntilVisible(

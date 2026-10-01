@@ -36,6 +36,21 @@ class BloodService {
 
   List<Hospital> get hospitals => List.unmodifiable(kHospitals);
 
+  Hospital? hospitalById(String id) {
+    for (final h in kHospitals) {
+      if (h.id == id) return h;
+    }
+    return null;
+  }
+
+  /// Blood bank by id (null if not found).
+  BloodBank? bloodBankById(String id) {
+    for (final b in kBloodBanks) {
+      if (b.id == id) return b;
+    }
+    return null;
+  }
+
   List<BloodBank> get bloodBanks => List.unmodifiable(kBloodBanks);
 
   /// Hospitals sorted by rating (Top-10 style list).

@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import '../../core/app_theme.dart';
 import '../../data/hospitals_data.dart';
 import '../../models/blood_availability.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
+import '../../services/blood_service.dart';
 import '../../services/donor_service.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/donor_badges.dart';
@@ -252,6 +254,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _tag(Icons.bloodtype, user.bloodGroup),
                     const SizedBox(width: 10),
                     _tag(Icons.location_on_outlined, user.area),
+                    const SizedBox(width: 10),
+                    _tag(
+                      user.isAdmin
+                          ? (user.role == UserRole.hospitalAdmin
+                              ? Icons.local_hospital
+                              : Icons.water_drop)
+                          : Icons.volunteer_activism,
+                      user.role.label,
+                    ),
                   ],
                 ),
               ],
@@ -268,6 +279,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _row(Icons.location_on_outlined, 'Area', '${user.area}, ${user.city}'),
           if (user.age != null)
             _row(Icons.cake_outlined, 'Age', '${user.age} years'),
+          _row(
+            Icons.manage_accounts_outlined,
+            'Account type',
+            user.role.label,
+          ),
+          if (user.managedFacilityId != null)
+            _row(
+              Icons.business_outlined,
+              'Manages',
+              user.role == UserRole.hospitalAdmin
+                  ? (BloodService.instance.hospitalById(user.managedFacilityId!)
+                          ?.name ??
+                      user.managedFacilityId!)
+                  : (BloodService.instance.bloodBankById(user.managedFacilityId!)
+                          ?.name ??
+                      user.managedFacilityId!),
+            ),
 
           const SizedBox(height: 12),
 

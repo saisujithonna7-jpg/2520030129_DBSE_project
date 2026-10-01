@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/app_theme.dart';
 import '../../data/notifications_data.dart';
 import '../../models/app_notification.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/blood_service.dart';
 import '../../services/donor_service.dart';
@@ -10,10 +11,13 @@ import '../../widgets/blood_bank_card.dart';
 import '../../widgets/hospital_card.dart';
 import '../../widgets/requirement_card.dart';
 import '../../widgets/section_header.dart';
+import '../admin/blood_bank_admin_screen.dart';
+import '../admin/hospital_admin_screen.dart';
 import '../blood_banks/blood_bank_detail_screen.dart';
 import '../blood_banks/blood_banks_screen.dart';
 import '../camps/camps_screen.dart';
 import '../donate/book_slot_screen.dart';
+import '../donate/donate_screen.dart';
 import '../hospitals/hospital_detail_screen.dart';
 import '../hospitals/hospitals_screen.dart';
 import '../notifications/notifications_screen.dart';
@@ -143,30 +147,98 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
 
           // ---- Quick donor actions (Phase 2) ----
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _quickAction(
-                    context,
-                    icon: Icons.event_available,
-                    label: 'Book a slot',
-                    onTap: () => _push(context, const BookSlotScreen()),
+          if (user == null || !user.isAdmin) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      context,
+                      icon: Icons.event_available,
+                      label: 'Book a slot',
+                      onTap: () => _push(context, const BookSlotScreen()),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _quickAction(
-                    context,
-                    icon: Icons.campaign_outlined,
-                    label: 'Donation camps',
-                    onTap: () => _push(context, const CampsScreen()),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      context,
+                      icon: Icons.campaign_outlined,
+                      label: 'Donation camps',
+                      onTap: () => _push(context, const CampsScreen()),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
+          ],
+
+          // ---- Admin dashboard entry (Phase 3) ----
+          if (user != null && user.isAdmin)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              child: Card(
+                color: AppTheme.red.withValues(alpha: 0.08),
+                child: ListTile(
+                  leading: Icon(
+                    user.role == UserRole.hospitalAdmin
+                        ? Icons.local_hospital
+                        : Icons.water_drop,
+                    color: AppTheme.red,
+                  ),
+                  title: Text(
+                    user.role == UserRole.hospitalAdmin
+                        ? 'Open Hospital Admin Dashboard'
+                        : 'Open Blood Bank Admin Dashboard',
+                    style: const TextStyle(
+                      fontSize: 13.5,
+                      fontWeight: FontWeight.w800,
+                      color: AppTheme.red,
+                    ),
+                  ),
+                  subtitle: Text(
+                    'Manage ${user.role == UserRole.hospitalAdmin ? "doctors, inventory & appointments" : "stock, donors & requests"}',
+                    style: const TextStyle(fontSize: 12),
+                  ),
+                  trailing: const Icon(Icons.arrow_forward,
+                      size: 18, color: AppTheme.red),
+                  onTap: () => _push(
+                    context,
+                    user.role == UserRole.hospitalAdmin
+                        ? const HospitalAdminScreen()
+                        : const BloodBankAdminScreen(),
+                  ),
+                ),
+              ),
+            ),
+
+          // ---- Phase 2 links (donor features) ----
+          if (user == null || !user.isAdmin)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _quickAction(
+                      context,
+                      icon: Icons.volunteer_activism,
+                      label: 'Donate dashboard',
+                      onTap: () => _push(context, const DonateScreen()),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _quickAction(
+                      context,
+                      icon: Icons.campaign,
+                      label: 'All camps',
+                      onTap: () => _push(context, const CampsScreen()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
 
           // ---- Emergency blood requirements ----
           SectionHeader(

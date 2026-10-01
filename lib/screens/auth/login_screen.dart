@@ -164,10 +164,27 @@ class _LoginScreenState extends State<LoginScreen> {
                       color: AppTheme.bg,
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Text(
-                      'Demo login →  demo@raktasetu.in  /  demo123',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12.5, color: AppTheme.textGrey),
+                    child: const Column(
+                      children: [
+                        Text(
+                          'Demo logins (password: demo123)',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w800,
+                              color: AppTheme.textDark),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          '👤 Donor — demo@raktasetu.in\n'
+                          '🏥 Hospital admin — hospital@raktasetu.in\n'
+                          '🩸 Blood bank admin — bloodbank@raktasetu.in',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 11.5, color: AppTheme.textGrey,
+                              height: 1.5),
+                        ),
+                      ],
                     ),
                   ),
                 ],

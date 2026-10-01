@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../core/app_theme.dart';
+import '../../data/blood_banks_data.dart';
 import '../../data/hospitals_data.dart';
 import '../../models/blood_availability.dart';
+import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/primary_button.dart';
@@ -27,6 +29,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _ageCtrl = TextEditingController();
   String? _bloodGroup;
   String? _area;
+  UserRole _role = UserRole.donor;
+  String? _facilityId;
   bool _loading = false;
   String? _error;
 
@@ -61,6 +65,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
       area: _area!,
       password: _passwordCtrl.text,
       age: int.tryParse(_ageCtrl.text.trim()),
+      role: _role,
+      managedFacilityId: _role == UserRole.donor ? null : _facilityId,
     );
     if (!mounted) return;
     if (error != null) {
@@ -197,6 +203,72 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ? 'Password must be at least 6 characters'
                       : null,
                 ),
+                const SizedBox(height: 16),
+                // ---- Account type (Phase 3) ----
+                const Text(
+                  'Account type',
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF374151),
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SegmentedButton<UserRole>(
+                  segments: const [
+                    ButtonSegment(
+                      value: UserRole.donor,
+                      label: Text('Donor'),
+                      icon: Icon(Icons.volunteer_activism, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: UserRole.hospitalAdmin,
+                      label: Text('Hospital'),
+                      icon: Icon(Icons.local_hospital, size: 18),
+                    ),
+                    ButtonSegment(
+                      value: UserRole.bloodBankAdmin,
+                      label: Text('Blood bank'),
+                      icon: Icon(Icons.water_drop, size: 18),
+                    ),
+                  ],
+                  selected: {_role},
+                  onSelectionChanged: (s) =>
+                      setState(() => _role = s.first),
+                ),
+                if (_role != UserRole.donor) ...[
+                  const SizedBox(height: 12),
+                  DropdownButtonFormField<String>(
+                    initialValue: _facilityId,
+                    decoration: InputDecoration(
+                      labelText: _role == UserRole.hospitalAdmin
+                          ? 'Your hospital'
+                          : 'Your blood bank',
+                      prefixIcon: const Icon(Icons.business_outlined,
+                          size: 20),
+                    ),
+                    items: (_role == UserRole.hospitalAdmin
+                            ? kHospitals.map((h) => (
+                                h.id,
+                                '${h.name} (${h.area})'
+                              ))
+                            : kBloodBanks.map((b) => (
+                                b.id,
+                                '${b.name} (${b.area})'
+                              )))
+                        .map(
+                          (r) => DropdownMenuItem(
+                            value: r.$1,
+                            child: Text(r.$2, overflow: TextOverflow.ellipsis),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (v) => setState(() => _facilityId = v),
+                    validator: (v) => v == null
+                        ? 'Please pick the facility you manage'
+                        : null,
+                  ),
+                ],
                 if (_error != null) ...[
                   const SizedBox(height: 12),
                   Text(
