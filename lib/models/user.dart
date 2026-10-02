@@ -19,10 +19,10 @@ class AppUser {
     required this.bloodGroup,
     required this.area,
     this.city = 'Hyderabad',
-    this.age,
-    this.role = UserRole.donor,
-    this.managedFacilityId,
-  });
+    this.age,      this.role = UserRole.donor,
+      this.managedFacilityId,
+      this.kycRecordId,
+    });
 
   final String id;
   final String fullName;
@@ -34,8 +34,11 @@ class AppUser {
   final int? age; // donor age for eligibility (Phase 2)
   final UserRole role; // dashboard to show (Phase 3)
   final String? managedFacilityId; // 'h01' / 'bb01' for admins
+  final String? kycRecordId; // Phase 4: linked KYC record
 
   bool get isAdmin => role != UserRole.donor;
+
+  bool get hasKYC => kycRecordId != null;
 
   String get initials {
     final parts = fullName.trim().split(RegExp(r'\s+'));
@@ -52,6 +55,7 @@ class AppUser {
     int? age,
     UserRole? role,
     String? managedFacilityId,
+    String? kycRecordId,
   }) {
     return AppUser(
       id: id,
@@ -64,6 +68,7 @@ class AppUser {
       age: age ?? this.age,
       role: role ?? this.role,
       managedFacilityId: managedFacilityId ?? this.managedFacilityId,
+      kycRecordId: kycRecordId ?? this.kycRecordId,
     );
   }
 
@@ -78,6 +83,7 @@ class AppUser {
         'age': age,
         'role': role.name,
         'managedFacilityId': managedFacilityId,
+        'kycRecordId': kycRecordId,
       };
 
   factory AppUser.fromMap(Map<String, dynamic> map) => AppUser(
@@ -94,5 +100,6 @@ class AppUser {
           orElse: () => UserRole.donor,
         ),
         managedFacilityId: map['managedFacilityId'] as String?,
+        kycRecordId: map['kycRecordId'] as String?,
       );
 }

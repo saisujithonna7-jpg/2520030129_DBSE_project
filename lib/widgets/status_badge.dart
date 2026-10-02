@@ -47,6 +47,39 @@ class StatusBadge extends StatelessWidget {
   }
 }
 
+/// Generic coloured pill for an arbitrary status label (Phase 4+).
+class PillBadge extends StatelessWidget {
+  const PillBadge({
+    super.key,
+    required this.label,
+    required this.color,
+    this.compact = false,
+  });
+
+  final String label;
+  final Color color;
+  final bool compact;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: compact ? 8 : 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: compact ? 11 : 12,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+    );
+  }
+}
+
 /// Verified / Unverified pill.
 class VerifiedBadge extends StatelessWidget {
   const VerifiedBadge({super.key, required this.isVerified});

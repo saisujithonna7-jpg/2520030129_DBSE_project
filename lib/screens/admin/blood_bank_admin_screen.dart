@@ -6,6 +6,8 @@ import '../../models/donation_record.dart';
 import '../../models/blood_request.dart';
 import '../../services/admin_service.dart';
 import '../../services/donor_service.dart';
+import '../../services/kyc_service.dart';
+import 'kyc_admin_screen.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/section_header.dart';
 
@@ -241,11 +243,69 @@ class _BloodBankAdminScreenState extends State<BloodBankAdminScreen> {
                       style: const TextStyle(fontSize: 12)),
                 ),
               ),
+          const SizedBox(height: 20),
+
+          // ---- KYC & donor verification (admin) ----
+          if (KYCService.instance.canManageKYC) ...[
+            const SectionHeader(title: '🪪 KYC & donor verification'),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  children: [
+                    ListTile(
+                      leading:
+                          const Icon(Icons.verified_user_outlined,
+                              color: AppTheme.red),
+                      title: const Text('KYC review queue',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800)),
+                      subtitle: Text(
+                          '${_pendingKYCCount()} pending KYC records',
+                          style: const TextStyle(fontSize: 12)),
+                      trailing: const Icon(Icons.arrow_forward,
+                          size: 18, color: AppTheme.textGrey),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const KYCAdminScreen()),
+                      ),
+                    ),
+                    const Divider(height: 1),
+                    ListTile(
+                      leading: const Icon(Icons.people_outline,
+                          color: AppTheme.red),
+                      title: const Text('All donors',
+                          style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w800)),
+                      subtitle: const Text(
+                          'Review donor verification status',
+                          style: TextStyle(fontSize: 12)),
+                      trailing: const Icon(Icons.arrow_forward,
+                          size: 18, color: AppTheme.textGrey),
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) =>
+                                const KYCAdminScreen()),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+
           const SizedBox(height: 32),
         ],
       ),
     );
   }
+
+  int _pendingKYCCount() => KYCService.instance.pendingKYCCount;
 
   Future<void> _editUnits(BloodAvailability entry) async {
     final controller = TextEditingController(text: '${entry.units}');

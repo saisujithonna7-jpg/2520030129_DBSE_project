@@ -7,6 +7,7 @@ import '../../models/user.dart';
 import '../../services/auth_service.dart';
 import '../../services/blood_service.dart';
 import '../../services/donor_service.dart';
+
 import '../../widgets/custom_text_field.dart';
 import '../../widgets/donor_badges.dart';
 import '../auth/login_screen.dart';
@@ -15,6 +16,9 @@ import '../donate/donation_history_screen.dart';
 import '../donate/my_bookings_screen.dart';
 import '../requirements/requirements_screen.dart';
 import '../safety/safety_screen.dart';
+import '../kyc/kyc_screen.dart';
+import '../benefits/benefits_screen.dart';
+import '../coupons/coupons_screen.dart';
 
 /// Profile tab: user info, edit profile, links, logout.
 class ProfileScreen extends StatefulWidget {
@@ -417,6 +421,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
               MaterialPageRoute(builder: (_) => const SafetyScreen()),
             ),
           ),
+          if (!user.isAdmin) ...[
+            _linkTile(
+              icon: Icons.verified_user_outlined,
+              title: 'KYC & Verification',
+              subtitle: 'Aadhaar-linked identity verification',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const KycScreen()),
+              ),
+            ),
+            _linkTile(
+              icon: Icons.card_giftcard_outlined,
+              title: 'My Coupons',
+              subtitle: 'Active, used & expired coupons',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CouponsScreen()),
+              ),
+            ),
+            _linkTile(
+              icon: Icons.card_giftcard,
+              title: 'Donor Benefits',
+              subtitle: 'Discounts & partner hospital offers',
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const BenefitsScreen()),
+              ),
+            ),
+          ],
 
           const SizedBox(height: 16),
           SizedBox(
@@ -437,7 +470,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           const SizedBox(height: 12),
           const Text(
-            'RaktaSetu Phase 2 · Mock data build',
+            'RaktaSetu Phase 4 · KYC, benefits & coupons (mock build)',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 11.5, color: AppTheme.textGrey),
           ),

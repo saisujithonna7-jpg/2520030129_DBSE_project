@@ -22,6 +22,9 @@ import '../hospitals/hospital_detail_screen.dart';
 import '../hospitals/hospitals_screen.dart';
 import '../notifications/notifications_screen.dart';
 import '../requirements/requirements_screen.dart';
+import '../kyc/kyc_screen.dart';
+import '../benefits/benefits_screen.dart';
+import '../coupons/coupons_screen.dart';
 
 /// Home dashboard: user info, emergency requirements, nearby hospitals
 /// and blood banks, and the latest notifications.
@@ -213,28 +216,61 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
 
-          // ---- Phase 2 links (donor features) ----
+          // ---- Phase 2 + Phase 4 links (donor features) ----
           if (user == null || !user.isAdmin)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: _quickAction(
-                      context,
-                      icon: Icons.volunteer_activism,
-                      label: 'Donate dashboard',
-                      onTap: () => _push(context, const DonateScreen()),
-                    ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _quickAction(
+                          context,
+                          icon: Icons.volunteer_activism,
+                          label: 'Donate dashboard',
+                          onTap: () => _push(context, const DonateScreen()),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _quickAction(
+                          context,
+                          icon: Icons.campaign,
+                          label: 'All camps',
+                          onTap: () => _push(context, const CampsScreen()),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: _quickAction(
-                      context,
-                      icon: Icons.campaign,
-                      label: 'All camps',
-                      onTap: () => _push(context, const CampsScreen()),
-                    ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _quickAction(
+                          context,
+                          icon: Icons.verified_user,
+                          label: 'KYC & Verification',
+                          onTap: () => _push(context, const KycScreen()),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _quickAction(
+                          context,
+                          icon: Icons.card_giftcard,
+                          label: 'My Coupons',
+                          onTap: () => _push(context, const CouponsScreen()),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  _quickAction(
+                    context,
+                    icon: Icons.card_giftcard,
+                    label: 'Donor Benefits',
+                    onTap: () => _push(context, const BenefitsScreen()),
                   ),
                 ],
               ),

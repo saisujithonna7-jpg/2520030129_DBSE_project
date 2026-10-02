@@ -114,9 +114,31 @@ class AuthService extends ChangeNotifier {
       bloodGroup: bloodGroup,
       area: area,
       age: age,
+      kycRecordId: user.kycRecordId,
     );
     _currentUser = updated;
     // Keep the stored account in sync too.
+    final account = _accounts[updated.email];
+    if (account != null) {
+      _accounts[updated.email] = (password: account.password, user: updated);
+    }
+    _persistSession(updated);
+    notifyListeners();
+  }
+
+  /// Phase 4: attaches a KYC record id to the current user.
+  void attachKYCRecord(String recordId) {
+    final user = _currentUser;
+    if (user == null) return;
+    final updated = user.copyWith(
+      kycRecordId: recordId,
+      fullName: user.fullName,
+      phone: user.phone,
+      bloodGroup: user.bloodGroup,
+      area: user.area,
+      age: user.age,
+    );
+    _currentUser = updated;
     final account = _accounts[updated.email];
     if (account != null) {
       _accounts[updated.email] = (password: account.password, user: updated);
@@ -140,6 +162,9 @@ class AuthService extends ChangeNotifier {
     _sessionBox[_sessionKey] = user.email;
   }
 
+  // ---- Internal accessors (for cross-service lookups in mock services) ----
+  Map<String, ({String password, AppUser user})> get accounts => _accounts;
+
   static const AppUser _demoUser = AppUser(
     id: 'u0',
     fullName: 'Demo Donor',
@@ -148,6 +173,9 @@ class AuthService extends ChangeNotifier {
     bloodGroup: 'O+',
     area: 'Kukatpally',
     age: 28,
+    // Phase 4: demo donor comes pre-verified so benefits/coupons are
+    // immediately visible on first run.
+    kycRecordId: 'kyc_demo_0',
   );
 
   static const AppUser _demoHospitalAdmin = AppUser(
@@ -171,4 +199,29 @@ class AuthService extends ChangeNotifier {
     role: UserRole.bloodBankAdmin,
     managedFacilityId: 'bb01',
   );
+
+  AppUser get demoUser => _demoUser;
+  AppUser get demoHospitalAdmin => _demoHospitalAdmin;
+  AppUser get demoBloodBankAdmin => _demoBloodBankAdmin;
+
+  /// Every known account, including the three built-in demo accounts.
+  List<AppUser> get allUsers => [
+        ..._accounts.values.map((a) => a.user),
+        if (!_accounts.values.any((a) => a.user.id == _demoUser.id)) _demoUser,
+        if (!_accounts.values.any((a) => a.user.id == _demoHospitalAdmin.id))
+          _demoHospitalAdmin,
+        if (!_accounts.values.any((a) => a.user.id == _demoBloodBankAdmin.id))
+          _demoBloodBankAdmin,
+      ];
+
+  /// Looks up a user by id across registered and demo accounts.
+  AppUser? userById(String id) {
+    for (final a in _accounts.values) {
+      if (a.user.id == id) return a.user;
+    }
+    for (final u in [_demoUser, _demoHospitalAdmin, _demoBloodBankAdmin]) {
+      if (u.id == id) return u;
+    }
+    return null;
+  }
 }
